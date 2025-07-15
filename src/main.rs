@@ -6,5 +6,5 @@ extern crate litcrypt;
 use_litcrypt!();
 
 fn main() {
-    proto::Pick();
+    proto::pick();
 }

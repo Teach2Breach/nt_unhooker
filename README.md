@@ -27,6 +27,8 @@ The tool works by:
 
 ## Installation
 
+### As a Binary Tool
+
 ```bash
 # For development
 cargo build
@@ -36,6 +38,22 @@ cargo build --release
 
 # For static linking
 cargo rustc --release --bin nt_unhooker -- -C target-feature=+crt-static
+```
+
+### As a Library
+
+Add to your `Cargo.toml`:
+
+```toml
+[dependencies]
+nt_unhooker = { path = "path/to/nt_unhooker" }
+```
+
+Or from a git repository:
+
+```toml
+[dependencies]
+nt_unhooker = { git = "https://github.com/yourusername/nt_unhooker" }
 ```
 
 ## Example Output
@@ -89,3 +107,75 @@ Successfully unhooked all hooks
 ```
 
 This example shows the tool successfully detecting and removing inline hooks from several critical NTDLL functions while leaving clean functions untouched.
+
+## Using as a Library
+
+### Basic Usage
+
+```rust
+use nt_unhooker::{NtUnhooker, check_and_unhook};
+
+fn main() {
+    // Simple unhooking
+    if NtUnhooker::unhook() {
+        println!("Successfully unhooked NTDLL");
+    }
+    
+    // Or use the direct function
+    if check_and_unhook() {
+        println!("Successfully unhooked NTDLL");
+    }
+}
+```
+
+### Advanced Usage
+
+```rust
+use nt_unhooker::{get_ntdll_symbol_info, get_clean_ntdll, check_hooks, check_iat_hooks, unhook_ntdll};
+
+fn main() {
+    // Get NTDLL symbol information
+    if let Some(info) = get_ntdll_symbol_info() {
+        println!("NTDLL timestamp: {:#x}", info.timestamp);
+        println!("NTDLL size: {:#x}", info.size);
+    }
+    
+    // Download clean NTDLL for comparison
+    if let Some(clean_dll) = get_clean_ntdll() {
+        println!("Downloaded clean NTDLL: {} bytes", clean_dll.len());
+        
+        // Get current NTDLL handle (you'd need to implement this)
+        // let ntdll_handle = get_ntdll_handle();
+        
+        // Check for hooks without unhooking
+        // check_hooks(&clean_dll, ntdll_handle);
+        // check_iat_hooks(&clean_dll, ntdll_handle);
+        
+        // Direct unhooking without checks (if you already have the handles)
+        // unsafe { unhook_ntdll(&clean_dll, ntdll_handle); }
+    }
+}
+```
+
+### Available Functions
+
+- `check_and_unhook()` - Full unhooking process
+- `get_ntdll_symbol_info()` - Get NTDLL metadata
+- `get_clean_ntdll()` - Download clean NTDLL
+- `check_hooks()` - Check for inline hooks
+- `check_iat_hooks()` - Check for IAT hooks
+- `unhook_iat()` - Remove IAT hooks only
+- `unhook_ntdll()` - Remove inline hooks only (requires clean_dll and ntdll handle)
+- `get_clean_function_address()` - Get function address from clean DLL
+
+### Struct API
+
+```rust
+use nt_unhooker::NtUnhooker;
+
+// All functions are available as static methods
+NtUnhooker::unhook();
+NtUnhooker::unhook_direct(clean_dll, ntdll_handle); // Direct unhooking without checks
+NtUnhooker::get_symbol_info();
+NtUnhooker::download_clean_ntdll();
+```

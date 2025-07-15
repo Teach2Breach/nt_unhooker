@@ -302,7 +302,7 @@ pub fn get_clean_ntdll() -> Option<Vec<u8>> {
 }
 
 //take ntdll base address as a parameter
-fn check_hooks(clean_dll: &[u8], ntdll: PVOID) {
+pub fn check_hooks(clean_dll: &[u8], ntdll: PVOID) {
     unsafe {
         // First get clean LdrGetProcedureAddress
         let ldr_getproc = match get_clean_function_address(clean_dll, "LdrGetProcedureAddress")
@@ -481,7 +481,7 @@ pub fn unhook_ntdll(clean_dll: &[u8], ntdll: PVOID) -> bool {
     }
 }
 
-fn get_clean_function_address(clean_dll: &[u8], function_name: &str) -> Option<usize> {
+pub fn get_clean_function_address(clean_dll: &[u8], function_name: &str) -> Option<usize> {
     unsafe {
         let dos_header = clean_dll.as_ptr() as *const IMAGE_DOS_HEADER;
         let nt_headers = (clean_dll.as_ptr() as usize + (*dos_header).e_lfanew as usize) 
@@ -594,7 +594,7 @@ pub fn unhook_iat(clean_dll: &[u8], ntdll: PVOID) -> bool {
     }
 }
 
-fn check_iat_hooks(clean_dll: &[u8], ntdll: PVOID) {
+pub fn check_iat_hooks(clean_dll: &[u8], ntdll: PVOID) {
     unsafe {
         extern "C" {
             static __ImageBase: u8;
