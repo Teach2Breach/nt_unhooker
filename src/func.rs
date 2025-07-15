@@ -434,7 +434,7 @@ pub fn check_and_unhook() -> bool {
     true
 }
 
-fn unhook_ntdll(clean_dll: &[u8], ntdll: PVOID) -> bool {
+pub fn unhook_ntdll(clean_dll: &[u8], ntdll: PVOID) -> bool {
     unsafe {
         println!("Processing sections...");
         let dos_header = ntdll as *const IMAGE_DOS_HEADER;
